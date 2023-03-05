@@ -357,6 +357,15 @@ class TextFrame(Entity):
 
         glPopMatrix()
 
+class Ball(MeshEnt):
+    """
+    Ball (sphere) the agent can pick up and carry
+    """
+
+    def __init__(self, color, size=0.6):
+        assert color in COLOR_NAMES
+        super().__init__(mesh_name=f"ball_{color}", height=size, static=False)
+
 class Box(Entity):
     """
     Colored box object

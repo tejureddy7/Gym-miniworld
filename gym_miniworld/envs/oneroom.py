@@ -1,7 +1,7 @@
 import numpy as np
 import math
 from ..miniworld import MiniWorldEnv, Room
-from ..entity import Box
+from ..entity import Box, Ball
 
 class OneRoomEnv(MiniWorldEnv):
     """
@@ -19,6 +19,40 @@ class OneRoomEnv(MiniWorldEnv):
         )
 
     def _gen_world(self):
+        self.add_rect_room(
+            min_x=0,
+            max_x=self.size,
+            min_z=0,
+            max_z=self.size,
+            wall_tex="cardboard",
+            floor_tex="asphalt",
+            no_ceiling=False,
+        )
+
+
+        obj_types = [Ball, Box ] #, Key]
+
+        # for obj in range(self.num_objs):
+        #     # obj_type1 = self.rand.choice(obj_types)
+        #     obj_type1 = Ball
+        #     obj_type2 = Box
+        #
+        #     color = self.rand.color()
+
+            # if obj_type1 == Ball:
+        self.place_entity(Box(color="blue", size=0.9)) #edit color
+            # if obj_type2 == Box:
+        print("thispoint?")
+        self.place_entity(Ball(color="red", size=0.9)) #edit
+            # if obj_type == Key:
+            #     self.place_entity(Key(color=color)) # edit
+
+        self.place_agent()
+
+        self.num_picked_up = 0
+    '''
+
+    def _gen_world(self):
         room = self.add_rect_room(
             min_x=0,
             max_x=self.size,
@@ -28,6 +62,7 @@ class OneRoomEnv(MiniWorldEnv):
 
         self.box = self.place_entity(Box(color='red'))
         self.place_agent()
+    '''
 
     def step(self, action):
         obs, reward, done, info = super().step(action)

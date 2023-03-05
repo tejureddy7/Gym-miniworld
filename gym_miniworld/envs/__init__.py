@@ -12,7 +12,8 @@ from .maze import *
 from .collecthealth import *
 from .simtoreal1 import *
 from .simtoreal2 import *
-
+# from .pickupobs import *
+print("done")
 # Registered environment ids
 env_ids = []
 
