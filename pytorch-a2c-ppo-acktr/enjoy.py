@@ -48,7 +48,6 @@ actor_critic.eval()
 """
 if isinstance(env.venv, VecNormalize):
     env.venv.ob_rms = ob_rms
-
     # An ugly hack to remove updates
     def _obfilt(self, obs):
         if self.ob_rms:
@@ -56,7 +55,6 @@ if isinstance(env.venv, VecNormalize):
             return obs
         else:
             return obs
-
     env.venv._obfilt = types.MethodType(_obfilt, env.venv)
 """
 

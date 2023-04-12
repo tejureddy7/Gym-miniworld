@@ -19,8 +19,14 @@ from model import Policy
 from storage import RolloutStorage
 #from visualize import visdom_plot
 
-args = get_args()
+import csv
 
+output = open('export_log_test.csv', 'w')
+wrtr = csv.writer(output)
+wrtr.writerow(['Updates', 'num timesteps', 'FPS' ,'Last num training episodes',  'success rate'])
+
+args = get_args()
+print(args)
 assert args.algo in ['a2c', 'ppo', 'acktr']
 if args.recurrent_policy:
     assert args.algo in ['a2c', 'ppo'], \
@@ -36,6 +42,7 @@ try:
     os.makedirs(args.log_dir)
 except OSError:
     files = glob.glob(os.path.join(args.log_dir, '*.monitor.csv'))
+    print("test",files)
     for f in files:
         os.remove(f)
 
@@ -87,6 +94,7 @@ def main():
                         actor_critic.recurrent_hidden_state_size)
 
     obs = envs.reset()
+    
     # envs.render('pyglet')
     rollouts.obs[0].copy_(obs)
     rollouts.to(device)
@@ -168,6 +176,11 @@ def main():
                     np.count_nonzero(np.greater(episode_rewards, 0)) / len(episode_rewards)
                 )
             )
+            wrtr.writerow([j, total_num_steps,
+            int(total_num_steps / (end - start)),
+            len(episode_rewards),
+            np.count_nonzero(np.greater(episode_rewards, 0)) / len(episode_rewards)])
+            output.flush()
 
         if args.eval_interval is not None and len(episode_rewards) > 1 and j % args.eval_interval == 0:
             eval_envs = make_vec_envs(args.env_name, args.seed + args.num_processes, args.num_processes,

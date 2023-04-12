@@ -40,10 +40,11 @@ class OneRoomEnv(MiniWorldEnv):
         #     color = self.rand.color()
 
             # if obj_type1 == Ball:
-        self.place_entity(Box(color="blue", size=0.9)) #edit color
+
+        self.box = self.place_entity(Box(color="blue", size=0.9)) #edit color
             # if obj_type2 == Box:
-        print("thispoint?")
-        self.place_entity(Ball(color="red", size=0.9)) #edit
+        # print("thispoint?")
+        self.ball = self.place_entity(Ball(color="red", size=0.9)) #edit
             # if obj_type == Key:
             #     self.place_entity(Key(color=color)) # edit
 

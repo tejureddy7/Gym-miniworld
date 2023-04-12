@@ -80,7 +80,9 @@ class NNBase(nn.Module):
 
         self._hidden_size = hidden_size
         self._recurrent = recurrent
+        self.image_embedding_size = 32 * 7 * 5 #add
 
+        self._embedding_size = self.image_embedding_size #add
         if recurrent:
             self.gru = nn.GRUCell(recurrent_input_size, hidden_size)
             nn.init.orthogonal_(self.gru.weight_ih.data)
@@ -167,9 +169,12 @@ class CNNBase(NNBase):
 
             #nn.Dropout(0.2),
 
-            init_(nn.Linear(32 * 7 * 5, hidden_size)),
-            nn.ReLU()
+            # init_(nn.Linear(32 * 7 * 5, hidden_size)), #remove
+            # nn.ReLU() #remove
         )
+
+        self.fclayer = nn.Sequential(init_(nn.Linear(self._embedding_size, hidden_size)),
+        nn.ReLU()) #add
 
         init_ = lambda m: init(m,
             nn.init.orthogonal_,
@@ -191,6 +196,8 @@ class CNNBase(NNBase):
         if self.is_recurrent:
             x, rnn_hxs = self._forward_gru(x, rnn_hxs, masks)
 
+        x = self.fclayer(x) #add
+
         return self.critic_linear(x), x, rnn_hxs
 
 
@@ -208,15 +215,15 @@ class MLPBase(NNBase):
         self.actor = nn.Sequential(
             init_(nn.Linear(num_inputs, hidden_size)),
             nn.Tanh(),
-            init_(nn.Linear(hidden_size, hidden_size)),
-            nn.Tanh()
+            # init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Tanh()
         )
 
         self.critic = nn.Sequential(
             init_(nn.Linear(num_inputs, hidden_size)),
             nn.Tanh(),
-            init_(nn.Linear(hidden_size, hidden_size)),
-            nn.Tanh()
+            #init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Tanh()
         )
 
         self.critic_linear = init_(nn.Linear(hidden_size, 1))

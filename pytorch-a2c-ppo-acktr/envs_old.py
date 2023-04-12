@@ -8,7 +8,7 @@ from gym.spaces.box import Box
 from vec_env import VecEnvWrapper
 from vec_env.dummy_vec_env import DummyVecEnv
 from vec_env.subproc_vec_env import SubprocVecEnv
-import cv2
+
 try:
     import dm_control2gym
 except ImportError:
@@ -35,8 +35,6 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets):
         env = gym.make(env_id)
         env.seed(seed + rank)
 
-        env = Yolowrapper(env)
-
         obs_shape = env.observation_space.shape
 
         if add_timestep and len(
@@ -51,7 +49,6 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets):
         obs_shape = env.observation_space.shape
         if len(obs_shape) == 3 and obs_shape[2] in [1, 3]:
             env = TransposeImage(env)
-        print("Agent position",env.agent.pos)
 
         return env
 
@@ -106,106 +103,6 @@ class TransposeImage(gym.ObservationWrapper):
 
     def observation(self, observation):
         return observation.transpose(2, 1, 0)
-
-class Yolowrapper(gym.ObservationWrapper):
-    """
-    Transpose the observation image tensors for PyTorch
-    """
-
-    def __init__(self, env=None):
-        super().__init__(env)
-        obs_shape = self.observation_space.shape
-        #observation space for single object
-        self.observation_space = gym.spaces.Box(low=-100000, high=100000, shape=(1*4,))
-        # load model
-        self.model_yolo = torch.hub.load('yolov5','custom', path='yolov5/Lastweightscolored.pt', source='local') #Add path to yolov5
-
-    def observation(self, observation):
-
-        # cv2.imshow("OutputWindow",observation)
-        # cv2.waitKey(1) #blue
-        #obs = cv2.cvtColor(observation, cv2.COLOR_BGRA2RGB)
-        obs = observation
-        #cv2.imshow("ResultWindow",obs)
-        #cv2.waitKey(1) #red
-        results = self.model_yolo(obs)
-        BBox_Coordinates = results.pandas().xyxy[0].sort_values('xmin')
-        #print(BBox_Coordinates)
-
-       #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-        #cv2.imwrite('1.png',obs)
-       #results = self.model_yolo('C:/Users/EEHPC/Airlearning_project2/airlearning-rl2/yoloimagestest/1.png')
-
-        #print("coordinates",BBox_Coordinates)
-        x1,y1,x2,y2 = 0,0,0,0
-        a1,b1,a2,b2 = 0,0,0,0
-        p1,q1,p2,q2 = 0,0,0,0
-        if(len(BBox_Coordinates)!=0):
-            #For Blue box
-            if(0 in BBox_Coordinates['class'].values): #blue box
-                n1 = BBox_Coordinates.index[BBox_Coordinates['class'] == 0].values
-                n1 = n1[0]
-                x1 = int(BBox_Coordinates['xmin'][n1])
-                y1 = int(BBox_Coordinates['ymin'][n1])
-                x2 = int(BBox_Coordinates['xmax'][n1])
-                y2 = int(BBox_Coordinates['ymax'][n1])
-                print("Cube detected")
-                cv2.rectangle(obs, (x1, y1), (x2, y2), (255, 255, 255), 2)
-            # else:
-            #     print("Cube was not detected but ..")
-
-            #For Yellow Cone
-            # if(1 in BBox_Coordinates['class'].values): #cone
-            #    print("Cone detected") #Sphere incase of nano yolo
-            #    n2 = BBox_Coordinates.index[BBox_Coordinates['class'] == 1].values
-            #    n2 = n2[0]
-            #    a1 = int(BBox_Coordinates['xmin'][n2])
-            #    b1 = int(BBox_Coordinates['ymin'][n2])
-            #    a2 = int(BBox_Coordinates['xmax'][n2])
-            #    b2 = int(BBox_Coordinates['ymax'][n2])
-            #    cv2.rectangle(obs, (a1, b1), (a2, b2), (0, 255, 0), 2)
-
-            #For Red Sphere
-            if(2 in BBox_Coordinates['class'].values): #red sphere
-                print("Sphere detected")
-                n3 = BBox_Coordinates.index[BBox_Coordinates['class'] == 2].values
-                n3 = n3[0]
-                p1 = int(BBox_Coordinates['xmin'][n3])
-                q1 = int(BBox_Coordinates['ymin'][n3])
-                p2 = int(BBox_Coordinates['xmax'][n3])
-                q2 = int(BBox_Coordinates['ymax'][n3])
-                #cv2.rectangle(obs, (p1, q1), (p2, q2), (255, 255, 255), 2)
-
-            #single object-box detection
-            #x1,y1,x2,y2] #,a1,b1,a2,b2] #cube
-
-
-            #see bounding box on images
-            #cv2.imshow("ResultOutputWindow",obs)
-            #cv2.waitKey(1)
-            # Create another policy for highlevel
-
-            BBox = [p1,q1,p2,q2] #,x1,y1,x2,y2] #Sphere and cube
-        else:
-
-            BBox = [0,0,0,0] #,0,0,0,0] #,0,0,0,0]
-            print("No Detection happened")
-            #print("target color", self.target_color)
-            #to decide goal vector
-        # goal_vec = [0 ,0 ]
-        # print("Goal", self.boxIdx)
-        # goal_vec[self.boxIdx] = 1
-        # obs = BBox + goal_vec
-
-        obs = BBox
-        print(obs)
-        #obs = BBox
-
-        return  obs
-
-
-
 
 
 class VecPyTorch(VecEnvWrapper):
