@@ -7,6 +7,7 @@ from .objmesh import ObjMesh
 # Map of color names to RGB values
 COLORS = {
     'red'   : np.array([1.0, 0.0, 0.0]),
+    'white'   : np.array([1.0, 1.0, 1.0]),
     'green' : np.array([0.0, 1.0, 0.0]),
     'blue'  : np.array([0.0, 0.0, 1.0]),
     'purple': np.array([0.44, 0.15, 0.76]),

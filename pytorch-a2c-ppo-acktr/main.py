@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
+import argparse
 import algo
 from arguments import get_args
 from envs import make_vec_envs
@@ -21,6 +21,10 @@ from storage import RolloutStorage
 
 import csv
 
+# parser = argparse.ArgumentParser(description='RL')
+# parser.add_argument('--load-dir', default='./trained_models/',
+#                     help='directory to save agent logs (default: ./trained_models/)')
+# args = parser.parse_args()
 output = open('export_log_test.csv', 'w')
 wrtr = csv.writer(output)
 wrtr.writerow(['Updates', 'num timesteps', 'FPS' ,'Last num training episodes',  'success rate'])
@@ -70,8 +74,12 @@ def main():
     envs = make_vec_envs(args.env_name, args.seed, args.num_processes,
                         args.gamma, args.log_dir, args.add_timestep, device, False)
 
-    actor_critic = Policy(envs.observation_space.shape, envs.action_space,
-        base_kwargs={'recurrent': args.recurrent_policy})
+    # actor_critic = Policy(envs.observation_space.shape, envs.action_space,
+    #     base_kwargs={'recurrent': args.recurrent_policy})
+    # actor_critic.to(device)
+
+    actor_critic, ob_rms = \
+                torch.load(os.path.join('./trained_models/ppo/', args.env_name + ".pt"))
     actor_critic.to(device)
 
 
@@ -94,7 +102,7 @@ def main():
                         actor_critic.recurrent_hidden_state_size)
 
     obs = envs.reset()
-    
+
     # envs.render('pyglet')
     rollouts.obs[0].copy_(obs)
     rollouts.to(device)

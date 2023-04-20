@@ -26,8 +26,8 @@ class HallwayEnv(MiniWorldEnv):
 
     def _gen_world(self):
 
-        #self.boxIdx = random.randint(0, 1)
-        # print("test",self.boxIdx)
+        self.boxIdx = random.randint(0, 1)
+        print("test",self.boxIdx)
         # Create a long rectangular room
         self.room = self.add_rect_room(
             min_x=-1, max_x=-1 + self.length,
@@ -37,17 +37,33 @@ class HallwayEnv(MiniWorldEnv):
 
         # Place the box at the end of the hallway
 
-        self.ball = self.place_entity(
+        self.box = self.place_entity(
             Box(color='blue'),
             min_x=self.room.max_x - 2
         )
+
+        # self.box1 = self.place_entity(
+        #     Box(color='red'),
+        #     min_x=self.room.min_x - 2
+        # )
+        # self.box2 = self.place_entity(
+        #     Box(color='white'),
+        #     min_x=self.room.max_x - 4,
+        #     max_x=self.room.min_x - 4
+        #)
+        self.ball = self.place_entity(
+            Ball(color='red',size =0.9),
+            min_x=self.room.max_x - 4,
+            max_x=self.room.min_x - 4
+        )
+
 
 
         #Add Place a Red sphere at another endd of the hallway
         # self.ball = self.place_entity(
         #     Ball(color='red',size =0.9),
         #     min_x=self.room.min_x - 2
-        # )
+        # ) #[     5.2251           0     0.41027]
 
         #place a Cone at the final end
 
@@ -61,25 +77,32 @@ class HallwayEnv(MiniWorldEnv):
     def step(self, action):
         obs, reward, done, info = super().step(action)
 
-        # if self.boxIdx==0:
-        #     if self.near(self.box):
-        #         reward += self._reward()
-        #         done = True
-        # else:
-        if self.near(self.ball):
+        if self.boxIdx==0:
+            if self.near(self.ball):
+                reward += self._reward()
+                done = True
+                print("success")
+        else:
+            if self.near(self.box):
                 reward += self._reward()
                 done = True
                 print("success")
 
-        x, _, z = self.agent.pos
-        if x <= self.room.min_x or x >= self.room.max_x:
-            done = True
-            reward = 0
-            print("collision")
-        if z <= self.room.min_z or z >= self.room.max_z:
-            done = True
-            reward = 0
-            print("collision")
+                # min_x, max_x, min_z, max_z
+
+        # x, _, z = self.agent.pos
+        # if not self.collision(self.agent, self.room.min_x, self.room.max_x, self.room.min_z, self.room.max_z):
+        #     print("collision")
+        #     done = True
+
+        # if x <= self.room.min_x or x >= self.room.max_x:
+        #     done = True
+        #     reward = 0
+        #     print("collision")
+        # if z <= self.room.min_z or z >= self.room.max_z:
+        #     done = True
+        #     reward = 0
+        #     print("collision")
 
 
 

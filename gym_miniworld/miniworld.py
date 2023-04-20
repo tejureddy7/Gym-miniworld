@@ -661,7 +661,7 @@ class MiniWorldEnv(gym.Env):
         rand = self.rand if self.domain_rand else None
         fwd_step = self.params.sample(rand, 'forward_step')
         turn_step = self.params.sample(rand, 'turn_step')
-
+        # print("jmmddfwd_step
         if action == self.actions.move_forward:
             self.move_agent(fwd_step)
 
@@ -1071,6 +1071,12 @@ class MiniWorldEnv(gym.Env):
 
         # Resolve the rendered imahe into a numpy array
         return frame_buffer.resolve()
+
+    def collision(self, ent0, min_x, max_x, min_z, max_z):
+        if ent0.pos[0]>min_x and ent0.pos[0]<max_x and ent0.pos[2]>min_z and ent0.pos[2]<max_z:
+            return True
+        else:
+            return False
 
     def render_top_view(self, frame_buffer=None):
         """

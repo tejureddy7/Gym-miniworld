@@ -116,7 +116,7 @@ class Yolowrapper(gym.ObservationWrapper):
         super().__init__(env)
         obs_shape = self.observation_space.shape
         #observation space for single object
-        self.observation_space = gym.spaces.Box(low=-100000, high=100000, shape=(1*4,))
+        self.observation_space = gym.spaces.Box(low=-100000, high=100000, shape=(1*10,))
         # load model
         self.model_yolo = torch.hub.load('yolov5','custom', path='yolov5/Lastweightscolored.pt', source='local') #Add path to yolov5
 
@@ -133,8 +133,8 @@ class Yolowrapper(gym.ObservationWrapper):
         #print(BBox_Coordinates)
 
        #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-        #cv2.imwrite('1.png',obs)
+        obswrite = cv2.cvtColor(observation, cv2.COLOR_BGRA2RGB)
+        cv2.imwrite('1.png',obswrite)
        #results = self.model_yolo('C:/Users/EEHPC/Airlearning_project2/airlearning-rl2/yoloimagestest/1.png')
 
         #print("coordinates",BBox_Coordinates)
@@ -186,19 +186,19 @@ class Yolowrapper(gym.ObservationWrapper):
             #cv2.waitKey(1)
             # Create another policy for highlevel
 
-            BBox = [p1,q1,p2,q2] #,x1,y1,x2,y2] #Sphere and cube
+            BBox = [p1,q1,p2,q2,x1,y1,x2,y2] #Sphere and cube
         else:
 
-            BBox = [0,0,0,0] #,0,0,0,0] #,0,0,0,0]
+            BBox = [0,0,0,0,0,0,0,0] #,0,0,0,0]
             print("No Detection happened")
             #print("target color", self.target_color)
             #to decide goal vector
-        # goal_vec = [0 ,0 ]
-        # print("Goal", self.boxIdx)
-        # goal_vec[self.boxIdx] = 1
-        # obs = BBox + goal_vec
+        goal_vec = [0 ,0 ]
+        print("Goal", self.boxIdx)
+        goal_vec[self.boxIdx] = 1
+        obs = BBox + goal_vec
 
-        obs = BBox
+        #obs = BBox
         print(obs)
         #obs = BBox
 
